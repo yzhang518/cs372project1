@@ -26,13 +26,18 @@ config = {
         {
             'type': 'ICMP',
             'address': 'nasa.gov',
-            'interval': 30  # Check every 30 seconds
+            'interval': 30
         },
         {
             'type': 'DNS',
-            'address': '8.8.8.8',
-            'query': 'ubuntu.com',
-            'record_type': 'A',
+            'server': '8.8.8.8',  # Google's public DNS server
+            'queries': [
+                ('google.com', 'A'),
+                ('google.com', 'MX'),
+                ('google.com', 'AAAA'),
+                ('google.com', 'CNAME'),
+                ('yahoo.com', 'A'),
+            ],
             'interval': 300  # Check every 5 minutes
         },
         {
@@ -46,6 +51,11 @@ config = {
             'address': '1.1.1.1',
             'port': 53,
             'interval': 180
+        },
+        {
+            'type': 'NTP',
+            'address': 'pool.ntp.org',
+            'interval': 360  # Check every 6 minutes
         }
     ]
 }
@@ -57,16 +67,22 @@ def monitor_services(config):
     for server in config['servers']:
         match server['type']:
             case 'HTTP':
-                url = server['url']
-                helper.print_http(url)
+                helper.print_http(server)
             case 'HTTPS':
-                url = server['url']
-                helper.print_https(url)
+                helper.print_https(server)
                 pass
             case 'ICMP':
                 pass
+            case 'DNS':
+                helper.print_dns(server)
+            case 'TCP':
+                helper.print_tcp(server)
+            case 'UDP':
+                helper.print_udp(server)
+            case 'NTP':
+                helper.print_ntp(server)
             case _:
-                print(f"Unknown service type: {server['type']}")    
+                print(f"Unknown service type: {server['type']}")
         # time.sleep(server['interval'])
 
 
