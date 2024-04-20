@@ -451,6 +451,7 @@ def check_udp_port(ip_address: str, port: int, timeout: int = 3) -> (bool, str):
         return False, f"Failed to check UDP port {port} on {ip_address} due to an error: {e}"
 
 
+"""
 # Ping Usage Example
 print("Ping Example:")
 ping_addr, ping_time = ping("8.8.8.8")
@@ -508,5 +509,5 @@ udp_port_server = "8.8.8.8"
 udp_port_number = 53
 udp_port_status, udp_port_description = check_udp_port(udp_port_server, udp_port_number)
 print(f"Server: {udp_port_server}, UDP Port: {udp_port_number}, UDP Port Status: {udp_port_status}, Description: {udp_port_description}")
-
+"""
 

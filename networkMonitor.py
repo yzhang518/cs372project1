@@ -1,5 +1,5 @@
-import starter
-
+import helper_networkMonitor as helper
+import time
 
 def get_user_config():
     """
@@ -8,14 +8,15 @@ def get_user_config():
     """
     pass
 
-#TODO: modify the values. for now they are from classmate's post
+
+# TODO: modify the values. for now they are from classmate's post
 # Predefined configuration
 config = {
     'servers': [
         {
             'type': 'HTTPS',
             'url': 'https://www.google.com/',
-            'interval': 60  
+            'interval': 60
         },
         {
             'type': 'HTTP',
@@ -31,7 +32,7 @@ config = {
             'type': 'DNS',
             'address': '8.8.8.8',
             'query': 'ubuntu.com',
-            'record_type': 'A',  
+            'record_type': 'A',
             'interval': 300  # Check every 5 minutes
         },
         {
@@ -49,18 +50,24 @@ config = {
     ]
 }
 
+
 def monitor_services(config):
     """
     """
-    while True:
-        for server in config['servers']:
-            match server['type']:
-                case 'HTTP':
-                    pass
-                case 'HTTPS':
-                    pass
-                case _:
-                    print(f"Unknown service type: {server['type']}")
-                
+    for server in config['servers']:
+        match server['type']:
+            case 'HTTP':
+                url = server['url']
+                helper.print_http(url)
+            case 'HTTPS':
+                url = server['url']
+                helper.print_https(url)
+                pass
+            case 'ICMP':
+                pass
+            case _:
+                print(f"Unknown service type: {server['type']}")    
+        # time.sleep(server['interval'])
 
 
+monitor_services(config)
