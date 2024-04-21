@@ -11,24 +11,23 @@ def get_user_config():
     pass
 
 
-# TODO: modify the values. for now they are from classmate's post
 # Predefined configuration
 config = {
     'servers': [
         {
             'type': 'HTTPS',
             'url': 'https://www.google.com/',
-            'interval': 6
+            'interval': 1
         },
         {
             'type': 'HTTP',
             'url': 'http://gaia.cs.umass.edu/wireshark-labs/INTRO-wireshark-file1.html',
-            'interval': 6
+            'interval': 1
         },
         {
             'type': 'ICMP',
             'server': '8.8.8.8',
-            'interval': 6
+            'interval': 1
         },
         {
             'type': 'DNS',
@@ -40,24 +39,30 @@ config = {
                 ('google.com', 'CNAME'),
                 ('yahoo.com', 'A'),
             ],
-            'interval': 12
+            'interval': 2
         },
         {
             'type': 'TCP',
             'address': 'wikipedia.org',
             'port': 80,
-            'interval': 12
+            'interval': 2
         },
         {
             'type': 'UDP',
             'address': '1.1.1.1',
             'port': 53,
-            'interval': 12
+            'interval': 2
         },
         {
             'type': 'NTP',
             'address': 'pool.ntp.org',
-            'interval': 18
+            'interval': 3
+        },
+        {
+        'type': 'ECHO',
+        'address': '127.0.0.1',
+        'port': 65432,
+        'interval': 1  # Interval in minutes
         }
     ]
 }
@@ -83,6 +88,8 @@ def monitor_services(server, stop_event):
                 helper.print_udp(server)
             case 'NTP':
                 helper.print_ntp(server)
+            case 'ECHO':
+                pass
             case _:
                 print(f"Unknown service type: {server['type']}")
         time.sleep(server['interval'])

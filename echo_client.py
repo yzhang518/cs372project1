@@ -1,37 +1,28 @@
 import socket
 
+def echo_client(host='127.0.0.1', port=65432):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        try:
+            sock.connect((host, port))
+            print("Connected to echo server. Type 'goodbye' to exit.")
 
-def echo_client():
-    # Create a Socket:
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            while True:
+                message = input("Enter your message: ")
+                if not message:
+                    continue
 
-    # Specify Server Address and Port:
-    server_address = '127.0.0.1'
-    server_port = 65432
+                sock.sendall(message.encode())
+                response = sock.recv(1024).decode()
+                print(f"Received: {response}")
 
-    try:
-        # Establish a Connection:
-        sock.connect((server_address, server_port))
+                if message.lower() == "goodbye":
+                    print("Disconnecting from server.")
+                    break
 
-        while True:
-            # Send and Receive Data:
-            # Get user input
-            message = input("Enter your message (type 'goodbye' to disconnect): ")
-            print(f"Sending: {message}")
-            sock.sendall(message.encode())
-
-            # Receive the echo from the server
-            response = sock.recv(1024)
-            print(f"Received: {response.decode()}")
-
-            # If the user sends 'goodbye', break the loop
-            if message.lower() == 'goodbye':
-                break
-
-    finally:
-        # Close the Connection:
-        sock.close()
-
+        except socket.error as e:
+            print(f"Socket error: {e}")
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     echo_client()
