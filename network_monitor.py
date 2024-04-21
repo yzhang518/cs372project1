@@ -1,5 +1,7 @@
 import helper_networkMonitor as helper
 import time
+import threading
+
 
 def get_user_config():
     """
@@ -16,17 +18,17 @@ config = {
         {
             'type': 'HTTPS',
             'url': 'https://www.google.com/',
-            'interval': 60
+            'interval': 6
         },
         {
             'type': 'HTTP',
             'url': 'http://gaia.cs.umass.edu/wireshark-labs/INTRO-wireshark-file1.html',
-            'interval': 60
+            'interval': 6
         },
         {
             'type': 'ICMP',
-            'address': 'nasa.gov',
-            'interval': 30
+            'server': '8.8.8.8',
+            'interval': 6
         },
         {
             'type': 'DNS',
@@ -38,41 +40,41 @@ config = {
                 ('google.com', 'CNAME'),
                 ('yahoo.com', 'A'),
             ],
-            'interval': 300  # Check every 5 minutes
+            'interval': 12
         },
         {
             'type': 'TCP',
             'address': 'wikipedia.org',
             'port': 80,
-            'interval': 150
+            'interval': 12
         },
         {
             'type': 'UDP',
             'address': '1.1.1.1',
             'port': 53,
-            'interval': 180
+            'interval': 12
         },
         {
             'type': 'NTP',
             'address': 'pool.ntp.org',
-            'interval': 360  # Check every 6 minutes
+            'interval': 18
         }
     ]
 }
 
 
-def monitor_services(config):
+def monitor_services(server, stop_event):
     """
     """
-    for server in config['servers']:
+    while not stop_event.is_set():
         match server['type']:
-            case 'HTTP':
-                helper.print_http(server)
             case 'HTTPS':
+                helper.print_http(server)
+            case 'HTTP':
                 helper.print_https(server)
                 pass
             case 'ICMP':
-                pass
+                helper.print_icmp(server)
             case 'DNS':
                 helper.print_dns(server)
             case 'TCP':
@@ -83,7 +85,28 @@ def monitor_services(config):
                 helper.print_ntp(server)
             case _:
                 print(f"Unknown service type: {server['type']}")
-        # time.sleep(server['interval'])
+        time.sleep(server['interval'])
 
 
-monitor_services(config)
+def main():
+    stop_event = threading.Event()
+    stop_event = threading.Event()
+    threads = []
+
+    for server in config['servers']:
+        thread = threading.Thread(target=monitor_services, args=(server, stop_event))
+        threads.append(thread)
+        thread.start()
+
+    try:
+        input("Press Enter to terminate the monitoring.\n")
+        print("Terminating the monitoring... Please wait.")
+    finally:
+        stop_event.set()
+        for thread in threads:
+            thread.join()
+        print("Monitoring has been successfully terminated.")
+
+
+if __name__ == "__main__":
+    main()
