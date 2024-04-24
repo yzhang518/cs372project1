@@ -13,6 +13,8 @@ import dns.exception
 from socket import gaierror
 from time import ctime
 from typing import Tuple, Optional, Any
+from echo_client import echo_client
+from echo_server import echo_server
 
 
 def check_server_http(url: str) -> Tuple[bool, Optional[int]]:
@@ -503,3 +505,18 @@ def print_icmp(server):
     """
     """
     print(traceroute(server['server']))
+
+def print_echo(server):
+    """
+    """
+    success = echo_client(server['message'], server['address'], server['port'])
+    if success:
+        print("ECHO server is up and responding correctly.")
+    else:
+        print("ECHO server response was incorrect or server is down.")
+
+
+def send_goodbye(server):
+    """
+    """
+    echo_client("goodbye", server['address'], server['port'])

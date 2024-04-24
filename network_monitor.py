@@ -3,14 +3,6 @@ import time
 import threading
 
 
-def get_user_config():
-    """
-    Get user input for server, param for service checn and interval.
-    Users can input 'Done' to terminate the app.
-    """
-    pass
-
-
 # Predefined configuration
 config = {
     'servers': [
@@ -61,8 +53,9 @@ config = {
         {
         'type': 'ECHO',
         'address': '127.0.0.1',
-        'port': 65432,
-        'interval': 1  # Interval in minutes
+        'port': 12345,
+        'interval': 6,
+        'message': "hello from YZ"
         }
     ]
 }
@@ -71,6 +64,8 @@ config = {
 def monitor_services(server, stop_event):
     """
     """
+    global echo_server
+
     while not stop_event.is_set():
         match server['type']:
             case 'HTTPS':
@@ -89,14 +84,14 @@ def monitor_services(server, stop_event):
             case 'NTP':
                 helper.print_ntp(server)
             case 'ECHO':
-                pass
+                echo_server = server
+                helper.print_echo(server)
             case _:
                 print(f"Unknown service type: {server['type']}")
         time.sleep(server['interval'])
 
 
 def main():
-    stop_event = threading.Event()
     stop_event = threading.Event()
     threads = []
 
@@ -112,6 +107,9 @@ def main():
         stop_event.set()
         for thread in threads:
             thread.join()
+
+        print(echo_server['address'])
+        helper.send_goodbye(echo_server)
         print("Monitoring has been successfully terminated.")
 
 

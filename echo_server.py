@@ -19,7 +19,7 @@ def handle_client(connection, address):
     finally:
         connection.close()
 
-def echo_server(host='127.0.0.1', port=65432):
+def echo_server(host='127.0.0.1', port=12345):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_sock:
         server_sock.bind((host, port))
         server_sock.listen()
