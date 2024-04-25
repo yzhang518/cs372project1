@@ -1,64 +1,8 @@
 import helper_networkMonitor as helper
+from config import config
 import time
 import threading
-
-
-# Predefined configuration
-config = {
-    'servers': [
-        {
-            'type': 'HTTPS',
-            'url': 'https://www.google.com/',
-            'interval': 1
-        },
-        {
-            'type': 'HTTP',
-            'url': 'http://gaia.cs.umass.edu/wireshark-labs/INTRO-wireshark-file1.html',
-            'interval': 1
-        },
-        {
-            'type': 'ICMP',
-            'server': '8.8.8.8',
-            'interval': 1
-        },
-        {
-            'type': 'DNS',
-            'server': '8.8.8.8',  # Google's public DNS server
-            'queries': [
-                ('google.com', 'A'),
-                ('google.com', 'MX'),
-                ('google.com', 'AAAA'),
-                ('google.com', 'CNAME'),
-                ('yahoo.com', 'A'),
-            ],
-            'interval': 2
-        },
-        {
-            'type': 'TCP',
-            'address': 'wikipedia.org',
-            'port': 80,
-            'interval': 2
-        },
-        {
-            'type': 'UDP',
-            'address': '1.1.1.1',
-            'port': 53,
-            'interval': 2
-        },
-        {
-            'type': 'NTP',
-            'address': 'pool.ntp.org',
-            'interval': 3
-        },
-        {
-        'type': 'ECHO',
-        'address': '127.0.0.1',
-        'port': 12345,
-        'interval': 6,
-        'message': "hello from YZ"
-        }
-    ]
-}
+import datetime
 
 
 def monitor_services(server, stop_event):
@@ -69,9 +13,9 @@ def monitor_services(server, stop_event):
     while not stop_event.is_set():
         match server['type']:
             case 'HTTPS':
-                helper.print_http(server)
-            case 'HTTP':
                 helper.print_https(server)
+            case 'HTTP':
+                helper.print_http(server)
                 pass
             case 'ICMP':
                 helper.print_icmp(server)
@@ -114,4 +58,5 @@ def main():
 
 
 if __name__ == "__main__":
+
     main()
