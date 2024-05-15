@@ -51,7 +51,7 @@ def producer(monitor_name, tasks, task_queue):
 def consumer(task_queue, consolidation_queue, client_socket):
     while not shutdown_event.is_set():
         try:
-            task_result = task_queue.get(timeout=3)  # Adjust timeout as needed
+            task_result = task_queue.get(timeout=3)
             # Send task to the monitor server
             client_socket.sendall(json.dumps(task_result).encode())
             # Receive the acknowledgment from the monitor server
