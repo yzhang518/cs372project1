@@ -25,9 +25,9 @@ def handle_client_connection(client_socket):
 
             result = execute_task(task_info['service'])
             if result:
-                ack_message = json.dumps({'status': 'received', 'task_id': task_info['task_id'], 'msg': result})
+                ack_message = json.dumps({'status': 'received', 'task_id': task_info['task_id'], 'service': task_info['service'], 'msg': result})
             else:
-                ack_message = json.dumps({'status': 'error', 'task_id': task_info['task_id'], 'message': 'Config error, resend required'})
+                ack_message = json.dumps({'status': 'error', 'task_id': task_info['task_id'], 'service': task_info['service'], 'message': 'Config error, resend required'})
             
             client_socket.sendall(ack_message.encode())  # Send acknowledgment back for each task
 
@@ -84,3 +84,4 @@ if __name__ == "__main__":
     port = int(sys.argv[2])
     
     start_server(ip, port)
+
