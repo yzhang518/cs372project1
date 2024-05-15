@@ -1,13 +1,10 @@
-import socket
 import threading
 import json
-import time
 import uuid
-from config import server_configs
+import time
 import signal
 from queue import Queue, Empty
-
-
+import socket
 
 # Global consolidation queue and shutdown event
 consolidation_queue = Queue()
@@ -47,8 +44,15 @@ def consumer(task_queue, consolidation_queue, client_socket):
             client_socket.sendall(json.dumps(task_result).encode())
             # Receive the acknowledgment from the monitor server
             ack = client_socket.recv(1024)
-            ack_message = json.loads(ack.decode())
-            consolidation_queue.put(ack_message)
+            if not ack:
+                print("No acknowledgment received from monitor.")
+                continue
+            try:
+                ack_message = json.loads(ack.decode())
+                consolidation_queue.put(ack_message)
+            except json.JSONDecodeError as e:
+                print(f"Error decoding acknowledgment: {e}")
+                print(f"Received data: {ack.decode()}")
         except Empty:
             continue
         except Exception as e:
@@ -59,7 +63,10 @@ def message_writer():
     while not shutdown_event.is_set():
         try:
             message = consolidation_queue.get(timeout=3)  # Adjust timeout as needed
-            print(f"Task ID: {message['task_id']}, Service: {message['service']}, Result: {message['msg']}")
+            if 'task_id' in message and 'service' in message and 'msg' in message:
+                print(f"Task ID: {message['task_id']}, Service: {message['service']}, Result: {message['msg']}")
+            else:
+                print(f"Invalid message format received: {message}")
         except Empty:
             continue
 
@@ -86,7 +93,10 @@ def main():
     signal.signal(signal.SIGTERM, signal_handler)
     signal.signal(signal.SIGINT, signal_handler)
     
-    tasks = server_configs['servers']
+    tasks = [
+        {'type': 'HTTPS', 'url': 'https://www.google.com/', 'interval': 5},
+        {'type': 'HTTP', 'url': 'http://google.com', 'interval': 10}
+    ]
     
     monitor_configs = [
         {'monitor_name': 'Monitor1', 'ip': '127.0.0.1', 'port': 65432},

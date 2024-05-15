@@ -4,6 +4,7 @@ import threading
 import sys
 import helper_networkMonitor as helper
 
+
 def handle_client_connection(client_socket):
     try:
         while True:
@@ -12,18 +13,23 @@ def handle_client_connection(client_socket):
                 print("No data received, closing connection.")
                 break  # Exit the loop to close the connection
             
-            tasks = json.loads(data.decode())
-            print(f"Received tasks: {tasks}")
+            task_info = json.loads(data.decode())
+            print(f"Received task: {task_info}")
 
-            for task_info in tasks:  # Iterate over each task received
-                print(f"Processing task: {task_info}")
-                result = execute_task(task_info['service'])
-                if result:
-                    ack_message = json.dumps({'status': 'received', 'id': task_info['id'], 'msg': result})
-                else:
-                    ack_message = json.dumps({'status': 'error', 'id': task_info['id'], 'message': 'Config error, resend required'})
-                
-                client_socket.sendall(ack_message.encode())  # Send acknowledgment back for each task
+            # Ensure the received data is a dictionary and has the required keys
+            if not isinstance(task_info, dict) or 'service' not in task_info or 'task_id' not in task_info:
+                print("Invalid task data format received.")
+                ack_message = json.dumps({'status': 'error', 'message': 'Invalid task data format'})
+                client_socket.sendall(ack_message.encode())
+                continue
+
+            result = execute_task(task_info['service'])
+            if result:
+                ack_message = json.dumps({'status': 'received', 'task_id': task_info['task_id'], 'msg': result})
+            else:
+                ack_message = json.dumps({'status': 'error', 'task_id': task_info['task_id'], 'message': 'Config error, resend required'})
+            
+            client_socket.sendall(ack_message.encode())  # Send acknowledgment back for each task
 
     except Exception as e:
         print(f"Error handling client connection: {e}")
