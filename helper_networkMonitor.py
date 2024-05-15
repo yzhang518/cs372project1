@@ -163,7 +163,7 @@ def print_udp(server):
     udp_port_number = server['port']
     udp_port_status, udp_port_description = check_udp_port(udp_port_server, udp_port_number)
     
-    print(f"{datetime.datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")} UDP Server: {udp_port_server}, Port: {udp_port_number}, UDP Port Status: {udp_port_status}, Description: {udp_port_description}")
+    return f"{datetime.datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")} UDP Server: {udp_port_server}, Port: {udp_port_number}, UDP Port Status: {udp_port_status}, Description: {udp_port_description}"
 
 
 def check_tcp_port(ip_address: str, port: int) -> (bool, str):
@@ -215,7 +215,7 @@ def print_tcp(server):
     tcp_port_number = server['port']
     tcp_port_status, tcp_port_description = check_tcp_port(tcp_port_server, tcp_port_number)
     
-    print(f"{datetime.datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")} TCP Server: {tcp_port_server}, Port: {tcp_port_number}, TCP Port Status: {tcp_port_status}, Description: {tcp_port_description}")
+    return f"{datetime.datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")} TCP Server: {tcp_port_server}, Port: {tcp_port_number}, TCP Port Status: {tcp_port_status}, Description: {tcp_port_description}"
 
 
 def check_ntp_server(server: str) -> Tuple[bool, Optional[str]]:
@@ -252,7 +252,7 @@ def print_ntp(server):
     ntp_server = server['address']
     ntp_server_status, ntp_server_time = check_ntp_server(ntp_server)
     
-    print(f"{datetime.datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")} NTP {ntp_server} is up. Time: {ntp_server_time}" if ntp_server_status else f"NTP {ntp_server} is down.")
+    return f"{datetime.datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")} NTP {ntp_server} is up. Time: {ntp_server_time}" if ntp_server_status else f"NTP {ntp_server} is down."
 
 
 def check_dns_server_status(server, query, record_type) -> (bool, str):
@@ -290,7 +290,7 @@ def print_dns(server):
     for dns_query, dns_record_type in dns_queries:
         dns_server_status, dns_query_results = check_dns_server_status(dns_server, dns_query, dns_record_type)
         
-        print(f"{datetime.datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")} DNS Server: {dns_server}, Status: {dns_server_status}, {dns_record_type} Records Results: {dns_query_results}")
+        return f"{datetime.datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")} DNS Server: {dns_server}, Status: {dns_server_status}, {dns_record_type} Records Results: {dns_query_results}"
 
 
 def calculate_icmp_checksum(data: bytes) -> int:
@@ -511,16 +511,16 @@ def traceroute(host: str, max_hops: int = 30, pings_per_hop: int = 1, verbose: b
 def print_icmp(server):
     """
     """
-    print(f"{datetime.datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")}\n" + traceroute(server['server']))
+    return f"{datetime.datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")}\n" + traceroute(server['server'])
 
 def print_echo(server):
     """
     """
     success = echo_client(server['message'], server['address'], server['port'])
     if success:       
-        print(f"{datetime.datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")} ECHO server is up and responding correctly.")
+        return f"{datetime.datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")} ECHO server is up and responding correctly."
     else:
-        print(f"{datetime.datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")} ECHO server response was incorrect or server is down.")
+        return f"{datetime.datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")} ECHO server response was incorrect or server is down."
 
 
 def send_goodbye(server):

@@ -1,5 +1,5 @@
 # Predefined configuration
-config = {
+server_configs = {
     'servers': [
         {
             'type': 'HTTPS',
@@ -44,13 +44,6 @@ config = {
             'type': 'NTP',
             'address': 'pool.ntp.org',
             'interval': 15
-        },
-        {
-        'type': 'ECHO',
-        'address': '127.0.0.1',
-        'port': 12345,
-        'interval': 30,
-        'message': "hello from YZ"
         }
     ]
 }
