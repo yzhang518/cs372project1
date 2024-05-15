@@ -14,16 +14,15 @@ import signal
 from queue import Queue, Empty
 import socket
 
+
 # Global consolidation queue and shutdown event
 consolidation_queue = Queue()
 shutdown_event = threading.Event()
-
 
 # Signal handler for graceful shutdown
 def signal_handler(signum, frame):
     print("Shutdown signal received")
     shutdown_event.set()
-
 
 # Define a class to hold task information
 class Task:
@@ -34,7 +33,6 @@ class Task:
     def execute(self):
         # Simulate task execution based on service type
         return {"task_id": self.id, "service": self.service, "result": f"Executed {self.service['type']} task"}
-
 
 def producer(monitor_name, tasks, task_queue):
     while not shutdown_event.is_set():
@@ -47,11 +45,10 @@ def producer(monitor_name, tasks, task_queue):
             task_queue.put(result)
             time.sleep(task['interval'])
 
-
 def consumer(task_queue, consolidation_queue, client_socket):
     while not shutdown_event.is_set():
         try:
-            task_result = task_queue.get(timeout=3)
+            task_result = task_queue.get(timeout=3)  # Adjust timeout as needed
             # Send task to the monitor server
             client_socket.sendall(json.dumps(task_result).encode())
             # Receive the acknowledgment from the monitor server
@@ -71,7 +68,6 @@ def consumer(task_queue, consolidation_queue, client_socket):
             print(f"Error in consumer: {e}")
             break
 
-
 def message_writer():
     while not shutdown_event.is_set():
         try:
@@ -88,76 +84,65 @@ def message_writer():
         except Empty:
             continue
 
-
-def configure_socket(sock):
-    sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-    sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, 1)
-    sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, 1)
-    sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, 5)
-    print("TCP keepalive configured")
-
-
 def start_monitor_client(monitor_config, tasks):
     monitor_name = monitor_config['monitor_name']
     server_ip = monitor_config['ip']
     server_port = monitor_config['port']
-
+    
     # Establish connection to the monitor server
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    configure_socket(client_socket)
     client_socket.connect((server_ip, server_port))
     print(f"Connected to {monitor_name} at {server_ip}:{server_port}")
-
+    
     task_queue = Queue()
     producer_thread = threading.Thread(target=producer, args=(monitor_name, tasks, task_queue))
     consumer_thread = threading.Thread(target=consumer, args=(task_queue, consolidation_queue, client_socket))
-
+    
     producer_thread.start()
     consumer_thread.start()
-
+    
     return producer_thread, consumer_thread, client_socket
-
 
 def main():
     signal.signal(signal.SIGTERM, signal_handler)
     signal.signal(signal.SIGINT, signal_handler)
-
+    
     tasks = [
         {'type': 'HTTPS', 'url': 'https://www.google.com/', 'interval': 5},
         {'type': 'HTTP', 'url': 'http://example.com', 'interval': 5}
     ]
-
+    
     monitor_configs = [
         {'monitor_name': 'Monitor1', 'ip': '127.0.0.1', 'port': 65432},
         {'monitor_name': 'Monitor2', 'ip': '127.0.0.1', 'port': 65433}
     ]
-
+    
     threads = []
     sockets = []
     for config in monitor_configs:
         producer_thread, consumer_thread, client_socket = start_monitor_client(config, tasks)
         threads.extend([producer_thread, consumer_thread])
         sockets.append(client_socket)
-
+    
     writer_thread = threading.Thread(target=message_writer)
     writer_thread.start()
     threads.append(writer_thread)
-
+    
     try:
         while not shutdown_event.is_set():
             time.sleep(1)
     except KeyboardInterrupt:
         print("Received KeyboardInterrupt, shutting down")
         shutdown_event.set()
-
+    
     for thread in threads:
         thread.join(timeout=3)
         if thread.is_alive():
             print(f"Thread {thread.name} did not terminate")
-
+    
     for s in sockets:
         s.close()
 
-
 if __name__ == "__main__":
     main()
+
